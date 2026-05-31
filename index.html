@@ -231,13 +231,13 @@
 </head>
 <body>
   <header>
-    <div class="logo">
-      <div class="logo-icon">⚡</div>
-      <div class="logo-text">
-        <strong>SDL</strong>
-        <span>SAMDAMLET ELECTRICAL ENGINEERING</span>
-        <span>BN3541970</span>
-      </div>
+    <div class="brand-header">
+  <img src="assets/SDLlogo.png" alt="SDL Logo" class="brand-logo">
+  <div class="brand-text">
+    <span class="company-name">SAMDAMLET</span>
+    <span class="reg-number">BN3541970</span>
+  </div>
+</div>
     </div>
     <div class="header-badge">
       <div class="pulse-dot"></div>
@@ -247,27 +247,22 @@
 
   <div class="app">
     <!-- Sidebar - 3 Pillars -->
-    <aside class="sidebar">
-      <div class="sidebar-title">Engineering Pillars</div>
-      
-      <div class="pillar active" id="pillar1" onclick="selectPillar(1)">
-        <span class="icon">⚡</span>
-        <strong>Electrical Infrastructure</strong><br>
-        <small>Piping, Wiring & Fittings</small>
-      </div>
-
-      <div class="pillar" id="pillar2" onclick="selectPillar(2)">
-        <span class="icon">☀️</span>
-        <strong>Solar & Inverter Systems</strong><br>
-        <small>Panels, Inverters & Batteries</small>
-      </div>
-
-      <div class="pillar" id="pillar3" onclick="selectPillar(3)">
-        <span class="icon">📡</span>
-        <strong>Satellite & Media Installations</strong><br>
-        <small>DSTV, GOtv & FTA</small>
-      </div>
-
+   <div class="sidebar-menu">
+  <button class="pillar-btn active" data-pillar="electrical">
+    <i class="icon-electrical"></i> <!-- Insert a clean wire/junction line icon -->
+    <span>Electrical Infrastructure</span>
+  </button>
+  
+  <button class="pillar-btn" data-pillar="solar">
+    <i class="icon-solar"></i> <!-- Insert a clean solar panel line icon -->
+    <span>Solar & Inverter Systems</span>
+  </button>
+  
+  <button class="pillar-btn" data-pillar="satellite">
+    <i class="icon-satellite"></i> <!-- Insert a clean dish line icon -->
+    <span>Satellite Installations</span>
+  </button>
+</div>
       <div style="margin-top: 40px;">
         <div class="sidebar-title">OpenAI API Key</div>
         <input type="password" id="apiKey" placeholder="sk-proj-..." style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; color:white;">
