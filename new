@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SDL Electrical — AI Quotation Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #0B1F3A;
+    --navy-mid: #142d52;
+    --navy-light: #1e3f6e;
+    --orange: #FF6B00;
+    --orange-light: #ff8c3a;
+    --orange-glow: rgba(255,107,0,0.18);
+    --white: #F5F7FA;
+    --gray: #8fa3bc;
+    --gray-light: #c8d5e3;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,107,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,107,0,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 36px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(11,31,58,0.95);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--orange);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: white;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px var(--orange-glow);
+  }
+
+  .logo-text {
+    display: flex; flex-direction: column;
+  }
+
+  .logo-text strong {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .logo-text span {
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .header-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--orange-glow);
+    border: 1px solid rgba(255,107,0,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--orange-light);
+    font-weight: 500;
+  }
+
+  .pulse-dot {
+    width: 7px; height: 7px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* LAYOUT */
+  .app {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: calc(100vh - 73px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 28px 24px;
+    overflow-y: auto;
+    background: rgba(11,31,58,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sidebar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+  }
+
+  .api-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .api-label {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .api-input-wrap {
+    position: relative;
+  }
+
+  .api-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 40px 10px 12px;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .api-input:focus { border-color: var(--orange); }
+  .api-input::placeholder { color: var(--gray); }
+
+  .api-toggle {
+    position: absolute;
+    right: 10px; top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--gray);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+  }
+
+  .api-status {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 500;
+  }
+  .api-status.connected { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+  .api-status.disconnected { background: rgba(255,107,0,0.08); color: var(--gray); border: 1px solid var(--border); }
+
+  /* SERVICE PILLS */
+  .service-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .service-pill {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray-light);
+    font-weight: 500;
+  }
+
+  .service-pill:hover, .service-pill.active {
+    border-color: var(--orange);
+    background: var(--orange-glow);
+    color: var(--orange-light);
+  }
+
+  .service-pill .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+  /* HOW IT WORKS */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+
+  .step {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+
+  .step-num {
+    min-width: 22px; height: 22px;
+    background: var(--orange);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text { font-size: 12px; color: var(--gray-light); line-height: 1.5; }
+
+  /* MAIN CHAT AREA */
+  .main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* CHAT WINDOW */
+  .chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scroll-behavior: smooth;
+  }
+
+  /* WELCOME */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 16px;
+    animation: fadeUp 0.6s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .welcome-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--orange), #ff3d00);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 0 40px var(--orange-glow);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .welcome h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 3px;
+    line-height: 1.1;
+  }
+
+  .welcome h1 span { color: var(--orange); }
+
+  .welcome p {
+    font-size: 14px;
+    color: var(--gray);
+    max-width: 440px;
+    line-height: 1.7;
+  }
+
+  .quick-starts {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin-top: 8px;
+  }
+
+  .qs-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--gray-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .qs-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange-light);
+    background: var(--orange-glow);
+  }
+
+  /* MESSAGES */
+  .msg {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease;
+    max-width: 820px;
+  }
+
+  .msg.user { flex-direction: row-reverse; align-self: flex-end; }
+  .msg.assistant { align-self: flex-start; }
+
+  .msg-avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .msg.user .msg-avatar {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+  }
+
+  .msg.assistant .msg-avatar {
+    background: linear-gradient(135deg, var(--orange), #ff3d00);
+    box-shadow: 0 0 14px var(--orange-glow);
+  }
+
+  .msg-bubble {
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 680px;
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-top-right-radius: 4px;
+    color: var(--white);
+  }
+
+  .msg.assistant .msg-bubble {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--white);
+  }
+
+  /* QUOTATION OUTPUT */
+  .quotation-card {
+    background: white;
+    color: #1a1a2e;
+    border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 720px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    animation: fadeUp 0.5s ease;
+    align-self: flex-start;
+    margin: 8px 0;
+  }
+
+  .quot-header {
+    background: linear-gradient(135deg, #0B1F3A, #142d52);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+
+  .quot-company { color: white; }
+  .quot-company .name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: #FF6B00;
+  }
+  .quot-company .tagline { font-size: 10px; color: #8fa3bc; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+  .quot-company .contact { font-size: 11px; color: #c8d5e3; margin-top: 8px; line-height: 1.6; }
+
+  .quot-meta { text-align: right; color: white; }
+  .quot-meta .num { font-family: 'DM Mono', monospace; font-size: 13px; color: #FF6B00; font-weight: 500; }
+  .quot-meta .date { font-size: 11px; color: #8fa3bc; margin-top: 4px; }
+  .quot-meta .valid { font-size: 11px; color: #4ade80; margin-top: 2px; }
+
+  .quot-client {
+    padding: 16px 28px;
+    background: #f8faff;
+    border-bottom: 1px solid #e5ebf5;
+  }
+
+  .quot-client-label { font-size: 10px; color: #8fa3bc; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .quot-client-name { font-size: 16px; font-weight: 700; color: #0B1F3A; margin-top: 2px; }
+  .quot-client-info { font-size: 12px; color: #5a6a8a; margin-top: 2px; }
+
+  .quot-section-title {
+    padding: 14px 28px 8px;
+    font-size: 10px;
+    color: #FF6B00;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    background: #f8faff;
+    border-bottom: 1px solid #e5ebf5;
+  }
+
+  .quot-table { width: 100%; border-collapse: collapse; }
+
+  .quot-table th {
+    background: #0B1F3A;
+    color: #8fa3bc;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .quot-table th:last-child, .quot-table td:last-child { text-align: right; }
+  .quot-table th:nth-child(2), .quot-table td:nth-child(2) { text-align: center; }
+  .quot-table th:nth-child(3), .quot-table td:nth-child(3) { text-align: right; }
+
+  .quot-table td {
+    padding: 11px 16px;
+    font-size: 12px;
+    color: #2a3a5a;
+    border-bottom: 1px solid #eef2f8;
+    vertical-align: top;
+  }
+
+  .quot-table tr:last-child td { border-bottom: none; }
+  .quot-table tr:nth-child(even) td { background: #f8faff; }
+
+  .item-name { font-weight: 600; color: #0B1F3A; display: block; }
+  .item-desc { font-size: 11px; color: #7a8aaa; margin-top: 2px; }
+
+  .quot-totals {
+    padding: 16px 28px;
+    background: #f8faff;
+    border-top: 2px solid #e5ebf5;
+  }
+
+  .tot-row {
+    display: flex; justify-content: space-between;
+    font-size: 13px;
+    color: #5a6a8a;
+    padding: 3px 0;
+  }
+
+  .tot-row.grand {
+    border-top: 2px solid #0B1F3A;
+    margin-top: 8px;
+    padding-top: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0B1F3A;
+  }
+
+  .tot-row.grand .amount { color: #FF6B00; }
+
+  .quot-footer {
+    padding: 18px 28px;
+    background: #0B1F3A;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .quot-footer-item { }
+  .quot-footer-item .label { font-size: 10px; color: #8fa3bc; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .quot-footer-item .val { font-size: 12px; color: #c8d5e3; line-height: 1.5; }
+
+  .quot-terms {
+    padding: 14px 28px;
+    background: #f8faff;
+    font-size: 11px;
+    color: #7a8aaa;
+    line-height: 1.6;
+    border-top: 1px solid #e5ebf5;
+  }
+
+  .quot-terms strong { color: #0B1F3A; }
+
+  .quot-actions {
+    padding: 16px 28px;
+    background: white;
+    display: flex; gap: 10px;
+    border-top: 1px solid #e5ebf5;
+  }
+
+  .quot-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .quot-btn.primary { background: #FF6B00; color: white; }
+  .quot-btn.primary:hover { background: #e55f00; }
+  .quot-btn.secondary { background: #0B1F3A; color: #c8d5e3; border: 1px solid rgba(255,255,255,0.1); }
+  .quot-btn.secondary:hover { background: #142d52; }
+
+  /* TYPING */
+  .typing-indicator {
+    display: flex; gap: 5px; align-items: center;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    border-top-left-radius: 4px;
+    width: fit-content;
+  }
+
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-8px); opacity: 1; }
+  }
+
+  /* INPUT */
+  .input-area {
+    padding: 20px 32px 24px;
+    border-top: 1px solid var(--border);
+    background: rgba(11,31,58,0.9);
+    backdrop-filter: blur(12px);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .input-row:focus-within { border-color: var(--orange); }
+
+  #userInput {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+
+  #userInput::placeholder { color: var(--gray); }
+
+  .send-btn {
+    width: 38px; height: 38px;
+    background: var(--orange);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    box-shadow: 0 0 16px var(--orange-glow);
+  }
+
+  .send-btn:hover { background: var(--orange-light); transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    header { padding: 14px 18px; }
+    .chat-window { padding: 18px; }
+    .input-area { padding: 14px 18px 18px; }
+  }
+
+  @media print {
+    body { background: white !important; }
+    body::before { display: none; }
+    header, .sidebar, .input-area, .chat-window > *:not(.quotation-card) { display: none !important; }
+    .app { display: block; }
+    .main { display: block; }
+    .quotation-card { box-shadow: none; max-width: 100%; }
+    .quot-actions { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">SDL</div>
+    <div class="logo-text">
+      <strong>SAMDAMLET</strong>
+      <span>Electrical Engineering · BN3541970</span>
+    </div>
+  </div>
+  <div class="header-badge">
+    <div class="pulse-dot"></div>
+    AI Quotation Agent
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-title">API Configuration</div>
+    </div>
+
+    <div class="api-section">
+      <div class="api-label">Anthropic API Key</div>
+      <div class="api-input-wrap">
+        <input type="password" class="api-input" id="apiKey" placeholder="sk-ant-api03-..." />
+        <button class="api-toggle" onclick="toggleKey()" id="keyToggle">👁</button>
+      </div>
+      <div class="api-status disconnected" id="apiStatus">
+        <span>⚡</span> Enter key to activate AI
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-title" style="margin-bottom:12px">Service Categories</div>
+      <div class="service-grid">
+        <div class="service-pill" onclick="quickStart('residential wiring installation')">
+          <span class="icon">🏠</span>Residential
+        </div>
+        <div class="service-pill" onclick="quickStart('commercial electrical installation')">
+          <span class="icon">🏢</span>Commercial
+        </div>
+        <div class="service-pill" onclick="quickStart('solar energy system installation')">
+          <span class="icon">☀️</span>Solar System
+        </div>
+        <div class="service-pill" onclick="quickStart('inverter and battery backup system')">
+          <span class="icon">🔋</span>Inverter
+        </div>
+        <div class="service-pill" onclick="quickStart('DSTV satellite installation')">
+          <span class="icon">📡</span>DSTV/GOTV
+        </div>
+        <div class="service-pill" onclick="quickStart('real estate electrical project')">
+          <span class="icon">🏗️</span>Real Estate
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-title" style="margin-bottom:12px">How It Works</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Enter your Anthropic API key above to power the AI engine.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Describe your electrical project or tap a service category.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Answer the AI's follow-up questions about your project.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">Receive a professional, itemized SDL quotation — ready to print.</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="chat-window" id="chatWindow">
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcomeScreen">
+        <div class="welcome-icon">⚡</div>
+        <h1>SDL <span>AI QUOTE</span><br/>GENERATOR</h1>
+        <p>Get an instant, professional electrical quotation powered by AI. Describe your project and we'll handle the rest — itemized, branded, and ready to send.</p>
+        <div class="quick-starts">
+          <button class="qs-btn" onclick="quickStart('I need to wire a 3 bedroom flat')">🏠 Wire a 3-bedroom flat</button>
+          <button class="qs-btn" onclick="quickStart('Install solar panels for my home')">☀️ Home solar system</button>
+          <button class="qs-btn" onclick="quickStart('Install DSTV with extra view')">📡 DSTV installation</button>
+          <button class="qs-btn" onclick="quickStart('I need an inverter backup system')">🔋 Inverter system</button>
+          <button class="qs-btn" onclick="quickStart('Electrical work for a shopping plaza')">🏢 Commercial project</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="userInput" rows="1" placeholder="Describe your electrical project... e.g. I need to wire a 4-bedroom duplex in Lagos"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-hint">Press Enter to send · Shift+Enter for new line · Powered by Claude AI</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ============ STATE ============
+  let messages = [];
+  let isLoading = false;
+  let quotationGenerated = false;
+
+  const SYSTEM_PROMPT = `You are SDL's professional AI Quotation Agent for Samdamlet Electrical Engineering (BN3541970), a Nigerian electrical services company based in Nigeria.
+
+Your job is to gather project details from the client through friendly conversation, then generate a professional electrical quotation.
+
+SDL's services include:
+- Residential & commercial electrical wiring
+- Solar energy system installation (panels, inverters, batteries)
+- Inverter & battery backup systems
+- DSTV, GOTV, and free-to-air satellite installations
+- Industrial/real estate electrical work
+
+Nigerian pricing context (2024-2025, all prices in Naira):
+- Electrical wiring per room: ₦25,000 - ₦45,000 (materials + labour)
+- Consumer unit/distribution board: ₦35,000 - ₦85,000
+- Solar panel (300W-400W): ₦80,000 - ₦150,000 per panel
+- Inverter (1.5KVA-5KVA): ₦150,000 - ₦450,000
+- Lithium battery (100Ah): ₦180,000 - ₦280,000
+- DSTV dish & decoder installation: ₦25,000 - ₦65,000
+- Cable per metre (2.5mm): ₦650 - ₦850
+- Conduit per length: ₦1,500 - ₦2,500
+- Sockets/switches per point: ₦4,500 - ₦8,000
+- Labour per day: ₦15,000 - ₦25,000
+
+CONVERSATION FLOW:
+1. Greet warmly and ask about the project type and client name
+2. Ask 2-3 targeted follow-up questions based on project type
+3. Once you have enough info, generate the quotation
+
+WHEN READY TO GENERATE QUOTATION, respond with ONLY a valid JSON object (no markdown, no backticks, no explanation before or after) in this exact format:
+
+{"QUOTATION":{"client":{"name":"Client Name","phone":"","location":"Lagos, Nigeria"},"project":"Project description","items":[{"name":"Item name","description":"Brief spec","qty":1,"unit":"unit","rate":25000,"amount":25000}],"subtotal":100000,"vat":7500,"total":107500,"notes":"Any special notes","paymentTerms":"50% upfront, 50% on completion","validity":"30 days"}}
+
+Keep conversation friendly, professional, and concise. Ask focused questions. When you have enough info (project type, size, location, client name), generate the quotation. Don't ask more than 4 questions total before generating.`;
+
+  // ============ API KEY ============
+  function toggleKey() {
+    const input = document.getElementById('apiKey');
+    const btn = document.getElementById('keyToggle');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  document.getElementById('apiKey').addEventListener('input', function() {
+    const status = document.getElementById('apiStatus');
+    if (this.value.startsWith('sk-ant')) {
+      status.className = 'api-status connected';
+      status.innerHTML = '<span>✓</span> API key connected';
+    } else if (this.value.length > 0) {
+      status.className = 'api-status disconnected';
+      status.innerHTML = '<span>⚠</span> Invalid key format';
+    } else {
+      status.className = 'api-status disconnected';
+      status.innerHTML = '<span>⚡</span> Enter key to activate AI';
+    }
+  });
+
+  // ============ UI HELPERS ============
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function scrollBottom() {
+    const cw = document.getElementById('chatWindow');
+    cw.scrollTop = cw.scrollHeight;
+  }
+
+  function hideWelcome() {
+    const w = document.getElementById('welcomeScreen');
+    if (w) w.remove();
+  }
+
+  function addMessage(role, content) {
+    hideWelcome();
+    const cw = document.getElementById('chatWindow');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role === 'user' ? '👤' : '⚡';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = content.replace(/\n/g, '<br>');
+
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    cw.appendChild(div);
+    scrollBottom();
+    return div;
+  }
+
+  function showTyping() {
+    hideWelcome();
+    const cw = document.getElementById('chatWindow');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    wrap.id = 'typingIndicator';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = '⚡';
+
+    const typing = document.createElement('div');
+    typing.className = 'typing-indicator';
+    typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+
+    wrap.appendChild(avatar);
+    wrap.appendChild(typing);
+    cw.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+  }
+
+  // ============ QUOTATION RENDERER ============
+  function renderQuotation(data) {
+    const q = data.QUOTATION;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-NG', { day:'numeric', month:'long', year:'numeric' });
+    const quoteNum = 'SDL-' + now.getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+
+    const itemsHTML = q.items.map(item => `
+      <tr>
+        <td>
+          <span class="item-name">${item.name}</span>
+          <span class="item-desc">${item.description || ''}</span>
+        </td>
+        <td style="text-align:center">${item.qty} ${item.unit || ''}</td>
+        <td style="text-align:right">₦${Number(item.rate).toLocaleString()}</td>
+        <td style="text-align:right;font-weight:600">₦${Number(item.amount).toLocaleString()}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <div class="quotation-card" id="quotCard">
+        <div class="quot-header">
+          <div class="quot-company">
+            <div class="name">SAMDAMLET</div>
+            <div class="tagline">Electrical Engineering · BN3541970</div>
+            <div class="contact">
+              📞 +234 803 372 2369<br>
+              🌐 www.bit.ly/sdlelectricalengineering<br>
+              📱 @sdlelectricalengineering
+            </div>
+          </div>
+          <div class="quot-meta">
+            <div style="font-size:11px;color:#8fa3bc;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">QUOTATION</div>
+            <div class="num">${quoteNum}</div>
+            <div class="date">Date: ${dateStr}</div>
+            <div class="valid">Valid for: ${q.validity || '30 days'}</div>
+          </div>
+        </div>
+
+        <div class="quot-client">
+          <div class="quot-client-label">Prepared for</div>
+          <div class="quot-client-name">${q.client.name}</div>
+          <div class="quot-client-info">
+            ${q.client.phone ? '📞 ' + q.client.phone + ' &nbsp;|&nbsp; ' : ''}
+            📍 ${q.client.location}
+          </div>
+        </div>
+
+        <div class="quot-section-title">Project: ${q.project}</div>
+
+        <table class="quot-table">
+          <thead>
+            <tr>
+              <th>Item / Description</th>
+              <th>Qty</th>
+              <th>Unit Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHTML}</tbody>
+        </table>
+
+        <div class="quot-totals">
+          <div class="tot-row">
+            <span>Subtotal</span>
+            <span>₦${Number(q.subtotal).toLocaleString()}</span>
+          </div>
+          <div class="tot-row">
+            <span>VAT (7.5%)</span>
+            <span>₦${Number(q.vat).toLocaleString()}</span>
+          </div>
+          <div class="tot-row grand">
+            <span>TOTAL AMOUNT</span>
+            <span class="amount">₦${Number(q.total).toLocaleString()}</span>
+          </div>
+        </div>
+
+        <div class="quot-footer">
+          <div class="quot-footer-item">
+            <div class="label">Payment Terms</div>
+            <div class="val">${q.paymentTerms || '50% upfront, 50% on completion'}</div>
+          </div>
+          <div class="quot-footer-item">
+            <div class="label">Bank Details</div>
+            <div class="val">Provide on request<br>Account: Samdamlet Eng. Ltd</div>
+          </div>
+          <div class="quot-footer-item">
+            <div class="label">Warranty</div>
+            <div class="val">12 months on workmanship<br>Manufacturer warranty on parts</div>
+          </div>
+          <div class="quot-footer-item">
+            <div class="label">Contact</div>
+            <div class="val">+234 803 372 2369<br>@sdlelectricalengineering</div>
+          </div>
+        </div>
+
+        ${q.notes ? `<div class="quot-terms"><strong>Notes:</strong> ${q.notes}</div>` : ''}
+
+        <div class="quot-terms">
+          <strong>Terms & Conditions:</strong> This quotation is valid for the period stated above. Prices are subject to change after validity period. SDL reserves the right to review this quotation should the scope of work change. All work will be carried out in accordance with Nigerian Electrical Standards. This quotation excludes cost of civil/building works unless stated.
+        </div>
+
+        <div class="quot-actions">
+          <button class="quot-btn primary" onclick="printQuotation()">🖨 Print / Save PDF</button>
+          <button class="quot-btn secondary" onclick="newQuote()">+ New Quotation</button>
+        </div>
+      </div>
+    `;
+
+    const cw = document.getElementById('chatWindow');
+    cw.insertAdjacentHTML('beforeend', html);
+    scrollBottom();
+    quotationGenerated = true;
+  }
+
+  function printQuotation() { window.print(); }
+
+  function newQuote() {
+    messages = [];
+    quotationGenerated = false;
+    location.reload();
+  }
+
+  // ============ QUICK START ============
+  function quickStart(text) {
+    document.getElementById('userInput').value = text;
+    sendMessage();
+  }
+
+  // ============ SEND MESSAGE ============
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    if (!apiKey || !apiKey.startsWith('sk-ant')) {
+      addMessage('assistant', '⚠️ Please enter your Anthropic API key in the sidebar to activate the AI engine. You can get one at <strong>console.anthropic.com</strong>.');
+      return;
+    }
+
+    // Add user message
+    messages.push({ role: 'user', content: text });
+    addMessage('user', text);
+    input.value = '';
+    input.style.height = 'auto';
+
+    // Disable send
+    document.getElementById('sendBtn').disabled = true;
+    isLoading = true;
+    showTyping();
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          system: SYSTEM_PROMPT,
+          messages: messages
+        })
+      });
+
+      const data = await response.json();
+      removeTyping();
+
+      if (data.error) {
+        addMessage('assistant', `⚠️ API Error: ${data.error.message}`);
+        messages.pop();
+        return;
+      }
+
+      const reply = data.content[0].text;
+      messages.push({ role: 'assistant', content: reply });
+
+      // Check if it's a quotation JSON
+      const trimmed = reply.trim();
+      if (trimmed.startsWith('{"QUOTATION"') || trimmed.includes('"QUOTATION":{')) {
+        try {
+          // Extract JSON — handle cases where there might be extra text
+          const jsonMatch = trimmed.match(/\{[\s\S]*"QUOTATION"[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            addMessage('assistant', '✅ Here is your SDL quotation — professionally prepared and ready to print or share with your client:');
+            renderQuotation(parsed);
+          } else {
+            addMessage('assistant', reply);
+          }
+        } catch (e) {
+          addMessage('assistant', reply);
+        }
+      } else {
+        addMessage('assistant', reply);
+      }
+
+    } catch (err) {
+      removeTyping();
+      addMessage('assistant', `⚠️ Connection error: ${err.message}. Please check your API key and internet connection.`);
+    } finally {
+      document.getElementById('sendBtn').disabled = false;
+      isLoading = false;
+    }
+  }
+</script>
+</body>
+</html>
