@@ -1,0 +1,30 @@
+/* Color Variable Definitions */
+:root {
+  --sdl-bg-dark: #0a1128; /* Your deep premium base dark blue */
+  --sdl-orange: #ff6600;  /* Your exact vibrant accent orange */
+  --text-white: #ffffff;
+  --text-muted: #8a99ad;
+}
+
+/* Sleek, Transparent Sidebar Buttons */
+.pillar-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  transition: all 0.3s ease;
+}
+
+/* Active and Hover States pop in Vibrant Orange */
+.pillar-btn:hover, .pillar-btn.active {
+  border-color: var(--sdl-orange);
+  color: var(--text-white);
+  background: rgba(255, 102, 0, 0.05); /* Very subtle orange tint background */
+}
+.main-viewport {
+  background-color: var(--sdl-bg-dark);
+  /* Adds a subtle high-tech digital grid overlay */
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px; /* Controls the size of the engineering grid */
+}
