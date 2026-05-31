@@ -28,3 +28,37 @@
     linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 20px 20px; /* Controls the size of the engineering grid */
 }
+/* 1. Container for your entire top-left branding block */
+.brand-header {
+  display: flex;
+  align-items: center; /* Vertically centers the logo and text side-by-side */
+  gap: 12px;           /* Puts a clean space between the logo and the text */
+  height: 50px;        /* Limits the maximum height of the header row */
+}
+
+/* 2. Direct constraints on the large JPG image */
+.brand-logo {
+  height: 40px;        /* Forces the logo to shrink down neatly */
+  width: auto;         /* Automatically calculates width to keep the logo's original proportions */
+  object-fit: contain; /* Ensures the image fits cleanly inside its box without clipping */
+}
+
+/* 3. Styling the accompanying text next to it */
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.company-name {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.reg-number {
+  font-family: sans-serif;
+  font-size: 10px;
+  color: #8a99ad; /* Muted clean gray for your CAC number */
+}
