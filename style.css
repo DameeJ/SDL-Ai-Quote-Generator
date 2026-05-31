@@ -1,64 +1,217 @@
-/* Color Variable Definitions */
 :root {
-  --sdl-bg-dark: #0a1128; /* Your deep premium base dark blue */
-  --sdl-orange: #ff6600;  /* Your exact vibrant accent orange */
+  --sdl-bg-dark: #0a122c;
+  --sdl-panel-dark: #111b3d;
+  --sdl-orange: #ff6600;
   --text-white: #ffffff;
   --text-muted: #8a99ad;
 }
 
-/* Sleek, Transparent Sidebar Buttons */
-.pillar-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-white);
-  transition: all 0.3s ease;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Active and Hover States pop in Vibrant Orange */
-.pillar-btn:hover, .pillar-btn.active {
-  border-color: var(--sdl-orange);
-  color: var(--text-white);
-  background: rgba(255, 102, 0, 0.05); /* Very subtle orange tint background */
-}
-.main-viewport {
+body {
   background-color: var(--sdl-bg-dark);
-  /* Adds a subtle high-tech digital grid overlay */
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 20px 20px; /* Controls the size of the engineering grid */
+  color: var(--text-white);
+  height: 100vh;
+  overflow: hidden;
 }
-/* 1. Container for your entire top-left branding block */
+
+/* Main Grid Layout split into Sidebar and Main Content Area */
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* SIDEBAR STYLES */
+.sidebar {
+  width: 320px;
+  background-color: var(--sdl-panel-dark);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .brand-header {
   display: flex;
-  align-items: center; /* Vertically centers the logo and text side-by-side */
-  gap: 12px;           /* Puts a clean space between the logo and the text */
-  height: 50px;        /* Limits the maximum height of the header row */
+  align-items: center;
+  gap: 12px;
 }
 
-/* 2. Direct constraints on the large JPG image */
 .brand-logo {
-  height: 40px;        /* Forces the logo to shrink down neatly */
-  width: auto;         /* Automatically calculates width to keep the logo's original proportions */
-  object-fit: contain; /* Ensures the image fits cleanly inside its box without clipping */
+  height: 40px;
+  width: auto;
 }
 
-/* 3. Styling the accompanying text next to it */
 .brand-text {
   display: flex;
   flex-direction: column;
 }
 
 .company-name {
-  font-family: sans-serif;
   font-weight: bold;
-  font-size: 16px;
-  color: #ffffff;
+  font-size: 18px;
   letter-spacing: 1px;
 }
 
 .reg-number {
-  font-family: sans-serif;
-  font-size: 10px;
-  color: #8a99ad; /* Muted clean gray for your CAC number */
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--sdl-orange);
+  margin-top: 10px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pillar-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  padding: 14px;
+  text-align: left;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pillar-btn:hover, .pillar-btn.active {
+  border-color: var(--sdl-orange);
+  background-color: rgba(255, 102, 0, 0.08);
+}
+
+.api-box-container {
+  margin-top: auto; /* Pushes the API box down to the bottom of the sidebar */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.api-box-container label {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-muted);
+}
+
+#api-key-input {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+}
+
+/* MAIN CONTENT AREA STYLES */
+.main-content {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.main-header h1 {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.orange-text {
+  color: var(--sdl-orange);
+}
+
+.main-header p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* TAGS */
+.tags-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-tag-btn {
+  background-color: var(--sdl-panel-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-white);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.quick-tag-btn:hover {
+  border-color: var(--sdl-orange);
+}
+
+/* OUTPUT WORKSPACE */
+.output-display-area {
+  flex: 1;
+  background-color: var(--sdl-panel-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 24px;
+  overflow-y: auto;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* INPUT COMPONENT */
+.input-wrapper {
+  display: flex;
+  gap: 12px;
+  background-color: var(--sdl-panel-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.quote-input-bar {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 15px;
+  outline: none;
+}
+
+.send-btn {
+  background-color: var(--sdl-orange);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn:hover {
+  background-color: #e05900;
 }
