@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SDL AI Quote Generator</title>
+<style>
+:root{
+--navy:#0B1F3A;--navy2:#142d52;--orange:#FF6B00;--white:#F5F7FA;--gray:#9fb0c5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+font-family:Inter,Arial,sans-serif;background:linear-gradient(135deg,#08172c,#0B1F3A);
+color:var(--white);height:100vh;overflow:hidden;
+}
+body:before{
+content:"";position:fixed;inset:0;opacity:.06;
+background-image:
+linear-gradient(rgba(255,255,255,.2) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,255,255,.2) 1px,transparent 1px);
+background-size:40px 40px;
+}
+header{
+height:80px;border-bottom:1px solid rgba(255,255,255,.08);
+display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+}
+.brand{display:flex;align-items:center;gap:14px}
+.brand img{width:56px;height:56px;border-radius:50%;object-fit:cover}
+.brand h2{font-size:20px}
+.brand small{color:#97a9c1}
+.app{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 80px)}
+.sidebar{padding:24px;border-right:1px solid rgba(255,255,255,.08)}
+.pillar{
+border:1px solid rgba(255,255,255,.15);
+padding:18px;border-radius:14px;margin-bottom:14px;cursor:pointer;
+background:transparent;transition:.25s;
+}
+.pillar:hover,.pillar.active{border-color:var(--orange);background:rgba(255,107,0,.08)}
+.main{display:flex;flex-direction:column}
+.hero{flex:1;padding:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.hero h1{font-size:54px}
+.hero h1 span{color:var(--orange)}
+.hero p{max-width:700px;color:var(--gray);margin-top:12px}
+.tags{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px}
+.tag{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.15)}
+.inputBar{
+margin:20px;border:1px solid rgba(255,255,255,.12);
+border-radius:18px;display:flex;padding:12px;background:rgba(255,255,255,.04)
+}
+.inputBar input{flex:1;background:none;border:none;color:white;font-size:16px;outline:none}
+.send{
+width:52px;height:52px;border:none;border-radius:12px;background:var(--orange);
+color:white;font-size:20px;cursor:pointer
+}
+.apiBox{margin-top:30px}
+.apiBox input{width:100%;padding:12px;background:#091426;color:white;border:1px solid #334}
+</style>
+</head>
+<body>
+<header>
+<div class="brand">
+<img src="FB_IMG_1728657882390.jpg" alt="SDL Logo">
+<div>
+<h2>SAMDAMLET ELECTRICAL ENGINEERING</h2>
+<small>BN3541970</small>
+</div>
+</div>
+<div>SDL AI Quotation Platform</div>
+</header>
+
+<div class="app">
+<aside class="sidebar">
+<h3 style="margin-bottom:16px;color:#FF6B00">Engineering Pillars</h3>
+
+<div class="pillar active">⚡ Electrical Infrastructure<br><small>Piping, Wiring & Fittings</small></div>
+<div class="pillar">☀ Solar & Inverter Systems<br><small>Panels, Inverters & Batteries</small></div>
+<div class="pillar">📡 Satellite & Media Installations<br><small>DSTV, GOtv & FTA</small></div>
+
+<div class="apiBox">
+<label>OpenAI API Key</label>
+<input id="apiKey" type="password" placeholder="sk-proj-..." />
+</div>
+</aside>
+
+<main class="main">
+<section class="hero">
+<h1>SDL <span>AI QUOTE</span> GENERATOR</h1>
+<p>Generate instant, itemized, and branded electrical quotations powered by AI.</p>
+
+<div class="tags" id="tags">
+<div class="tag">Wire a 4-bedroom duplex</div>
+<div class="tag">Conduit piping for new site</div>
+<div class="tag">Upgrade switches & sockets</div>
+</div>
+</section>
+
+<div class="inputBar">
+<input id="prompt" placeholder="Describe the project scope..." />
+<button class="send" onclick="generateQuote()">⚡</button>
+</div>
+</main>
+</div>
+
+<script>
+const pillarTags={
+electrical:[
+"Wire a 4-bedroom duplex",
+"Conduit piping for new site",
+"Upgrade switches & sockets"
+],
+solar:[
+"5KVA Inverter System with Lithium Batteries",
+"Power a 1HP AC + Fridge",
+"4-Panel Solar Array Installation"
+],
+satellite:[
+"DSTV Explora + ExtraView Setup",
+"GOtv installation with mounting",
+"Multi-point commercial dish setup"
+]
+};
+
+async function generateQuote(){
+ const apiKey=document.getElementById('apiKey').value;
+ const prompt=document.getElementById('prompt').value;
+
+ const response=await fetch("https://api.openai.com/v1/chat/completions",{
+ method:"POST",
+ headers:{
+ "Content-Type":"application/json",
+ "Authorization":"Bearer "+apiKey
+ },
+ body:JSON.stringify({
+ model:"gpt-4.1",
+ messages:[
+ {role:"system",content:"You are SDL AI Quote Generator. Create professional itemized quotations for Electrical, Solar and Satellite projects."},
+ {role:"user",content:prompt}
+ ],
+ temperature:0.4
+ })
+ });
+
+ const data=await response.json();
+ alert(data.choices?.[0]?.message?.content || "No response");
+}
+</script>
+</body>
+</html>
